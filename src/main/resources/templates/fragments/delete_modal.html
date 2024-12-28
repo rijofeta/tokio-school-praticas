@@ -1,0 +1,21 @@
+<div class="modal-dialog" role="dialog" xmlns:th="http://www.w3.org/1999/xhtml">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h1 class="modal-title fs-5" id="exampleModalLabel" th:text="#{delete_modal.header}"></h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+      <p th:text="|#{delete_modal.message}:|"></p>
+      <p><strong id="product-name">Product Name</strong> ?</p>
+      <p><span th:text="|#{product.stock}:|"></span> <span id="product-stock">stock</span></p>
+      <form id="delete-form" method="post">
+        <input type="hidden" name="_method" value="DELETE">
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+              th:text="#{delete_modal.cancel}"></button>
+      <button type="submit" class="btn btn-danger" form="delete-form" th:text="#{delete_modal.delete}"></button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/head::head(title=#{update_form.title})}"></head>
+<body>
+  <header class="bg-light pt-3 text-center">
+    <h1 class="m-0 text-warning" th:text="#{update_form.header}"></h1>
+  </header>
+
+  <form class="form bg-light p-5" action="/products/update_product" method="post" th:object="${product}">
+
+    <input type="hidden" name="_method" value="PUT">
+    <input type="hidden" class="form-control" id="id" th:field="*{id}" required>
+
+    <div class="mb-3">
+      <label for="name" class="form-label" th:text="|#{product.name}:|"></label>
+      <input type="text" class="form-control" id="name" th:field="*{name}" required>
+    </div>
+    <div class="mb-3">
+      <label for="price" class="form-label" th:text="|#{product.price}:|"></label>
+      <span class="input-group-text p-0" style="border: none">
+        <input type="number" step=".01" class="form-control" id="price" th:field="*{price}" required> €
+      </span>
+    </div>
+    <div class="mb-3">
+      <label for="weight" class="form-label" th:text="|#{product.weight}:|"></label>
+      <span class="input-group-text p-0" style="border: none">
+        <input type="number" class="form-control" id="weight" th:field="*{weight}"> g
+      </span>
+    </div>
+    <div class="mb-3">
+      <label for="stock" class="form-label" th:text="|#{product.stock}:|"></label>
+      <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
+    </div>
+    <div class="mb-3">
+      <label for="image" class="form-label" th:text="|#{product.image_url}:|"></label>
+      <input type="url" class="form-control" id="image" th:field="*{image}">
+    </div>
+    <div class="mb-3">
+      <label for="description" class="form-label" th:text="|#{product.description}:|"></label>
+      <textarea class="form-control" rows="3" id="description" th:field="*{description}"></textarea>
+    </div>
+    <button type="submit" class="btn btn-warning" th:text="#{update_form.update_button}"></button>
+    <button type="reset" class="btn btn-secondary" th:text="#{form.clear}"></button>
+    <a href="/products">
+      <button type="button" class="btn btn-primary" th:text="#{form.return}"></button>
+    </a>
+  </form>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/head::head(title=#{error.title})}"></head>
+<body class="bg-light">
+  <header th:replace="~{fragments/header::header}"></header>
+  <main>
+    <div class="pt-3" th:object="${errorResponse}">
+      <div class="alert alert-danger mx-5 mb-0" role="alert" xmlns:th="http://www.w3.org/1999/xhtml">
+        <header class="row">
+          <h4 class="alert-heading col">
+            <span th:text="|#{error.header}: *{statusCode}!|"></span>
+          </h4>
+        </header>
+        <p th:text="*{message}"></p>
+        <hr>
+        <a href="/products">
+          <button type="button" class="btn me-3" th:text="#{error.go_back}"></button>
+        </a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

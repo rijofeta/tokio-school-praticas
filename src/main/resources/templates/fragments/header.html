@@ -1,0 +1,35 @@
+<header class="py-3" style="background-color: #5183c1;" xmlns:sec="http://www.w3.org/1999/xhtml"
+        xmlns:th="http://www.w3.org/1999/xhtml">
+  <div class="px-5 container-fluid d-grid gap-3 align-items-center" style="grid-template-columns: 1fr 3fr 1fr;">
+    <div class="dropdown">
+      <img src="/images/myshop_logo.png" height="60">
+    </div>
+
+    <div class="d-flex align-items-center">
+      <form class="w-100 me-3" role="search">
+        <input type="search" class="form-control" th:placeholder="|#{header.searchbar}...|"
+               aria-label="Search" style="color: #09175B;">
+      </form>
+    </div>
+
+    <div class="" style="margin: auto">
+      <div sec:authorize="isAuthenticated()">
+        <a href="#" style="text-decoration: none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#09175B"
+               class="bi bi-person-circle" viewBox="0 0 16 16">
+            <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+            <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+          </svg>
+        </a>
+        <a href="/logout">
+          <button class="btn" style="background-color: #09175B; color: white;">Logout</button>
+        </a>
+      </div>
+      <div sec:authorize="!isAuthenticated()">
+        <a href="/login" style="text-decoration: none">
+          <button class="btn" style="background-color: #09175B; color: white;">Login</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>
