@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/register").permitAll()
                         .requestMatchers("/login").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/products","/products/stock","products?**").authenticated()
+                        .requestMatchers("/products","/products/stock","products?**").permitAll()
                         .requestMatchers("/products/**").hasAuthority(Role.ADMIN_ROLE)
                         .requestMatchers(
                                 "/resources/**",
