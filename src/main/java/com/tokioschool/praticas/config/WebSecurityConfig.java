@@ -1,6 +1,7 @@
 package com.tokioschool.praticas.config;
 
 import com.tokioschool.praticas.config.filters.JwtAuthFilter;
+import com.tokioschool.praticas.config.filters.JwtRefreshFilter;
 import com.tokioschool.praticas.domain.Role;
 import com.tokioschool.praticas.services.SecurityAppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class WebSecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
+    @Autowired
+    private JwtRefreshFilter jwtRefreshFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -52,7 +56,8 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtRefreshFilter, JwtAuthFilter.class);
         return http.build();
     }
 

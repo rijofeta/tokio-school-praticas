@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import static com.tokioschool.praticas.util.JwtTokenUtil.*;
+
 @Controller
 public class AuthController {
 
@@ -57,6 +59,7 @@ public class AuthController {
         String token = jwtTokenUtil.generateToken(userDetails);
         Cookie jwtCookie = new Cookie("JWT", token);
         jwtCookie.setHttpOnly(true);
+        jwtCookie.setMaxAge((int) JWT_TOKEN_DURATION / 1000);
         response.addCookie(jwtCookie);
 
         logger.info("Successfull login: id={}, username={}",

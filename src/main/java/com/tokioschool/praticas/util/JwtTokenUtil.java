@@ -9,23 +9,22 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
-
-    @Value("${security.jwt.token-duration}")
-    private long jwtTokenDuration;
+    // jwt token duration in milliseconds
+    public static final long JWT_TOKEN_DURATION = 240000;
 
     @Value("${security.jwt.secret-key}")
     private String secret;
 
     @Value("${security.jwt.issuer}")
     private String issuer;
+    // Interval before jwt expires during which isExpiring() returns true (in milliseconds)
+    private final long jwtExpDelta = 180000;
 
     private Claims getAllClaims(String token) {
         return Jwts.parser().setSigningKey(secret).requireIssuer(issuer).parseClaimsJws(token).getBody();
@@ -56,20 +55,28 @@ public class JwtTokenUtil {
         });
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(String username, Collection<? extends GrantedAuthority> authorities) {
         // Create a List of authorities, so they get represented as a JSON array in "auths"
-        List<String> auths = userDetails.getAuthorities().stream()
+        List<String> auths = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtTokenDuration))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_DURATION))
                 .setIssuer(issuer)
                 .claim("auths", auths)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(userDetails.getUsername(), userDetails.getAuthorities());
+    }
+
+    public boolean isExpiring(String token) {
+        return getExpirationDate(token).before(new Date(System.currentTimeMillis() + jwtExpDelta));
     }
 
     public boolean isTokenValid(String token) {

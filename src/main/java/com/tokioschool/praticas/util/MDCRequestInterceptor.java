@@ -1,6 +1,5 @@
 package com.tokioschool.praticas.util;
 
-import com.tokioschool.praticas.config.filters.JwtAuthFilter;
 import com.tokioschool.praticas.domain.AppUser;
 import com.tokioschool.praticas.services.AppUserService;
 import jakarta.servlet.RequestDispatcher;
@@ -40,7 +39,7 @@ public class MDCRequestInterceptor implements HandlerInterceptor {
     }
 
     private void putUserInfo(HttpServletRequest request) {
-        Cookie jwtCookie = JwtAuthFilter.getJwtCookie(request.getCookies());
+        Cookie jwtCookie = CookieUtil.getCookie(CookieUtil.JWT_COOKIE, request.getCookies());
         if(jwtCookie != null && jwtTokenUtil.isTokenValid(jwtCookie.getValue())) {
             AppUser appUser = appUserService.findByUsername(jwtTokenUtil.getUsername(jwtCookie.getValue()));
             MDC.put("userId", String.valueOf(appUser.getId()));
