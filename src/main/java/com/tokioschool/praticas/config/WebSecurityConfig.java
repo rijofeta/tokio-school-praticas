@@ -1,7 +1,6 @@
 package com.tokioschool.praticas.config;
 
 import com.tokioschool.praticas.config.filters.JwtAuthFilter;
-import com.tokioschool.praticas.config.filters.JwtRefreshFilter;
 import com.tokioschool.praticas.domain.Role;
 import com.tokioschool.praticas.services.SecurityAppUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,41 +22,31 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    private final String[] noAuthRequiredPaths = new String[]{
+            "/resources/**", "/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/fonts/**",
+            "/webjars/**", "/register", "/refresh-jwt", "/login", "/products","/products/stock","products?**",
+            "/error"
+    };
+
     @Autowired
     private SecurityAppUserService securityAppUserService;
 
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
-    @Autowired
-    private JwtRefreshFilter jwtRefreshFilter;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(requests -> requests
-                        .requestMatchers("/register").permitAll()
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers("/products","/products/stock","products?**").permitAll()
+                        .requestMatchers(noAuthRequiredPaths).permitAll()
                         .requestMatchers("/products/**").hasAuthority(Role.ADMIN_ROLE)
-                        .requestMatchers(
-                                "/resources/**",
-                                "/static/**",
-                                "/templates/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/fonts/**",
-                                "/webjars/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login")))
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(jwtRefreshFilter, JwtAuthFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

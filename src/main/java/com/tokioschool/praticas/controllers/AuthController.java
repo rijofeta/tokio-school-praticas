@@ -4,6 +4,7 @@ import com.tokioschool.praticas.dtos.LoginDTO;
 import com.tokioschool.praticas.services.AppUserService;
 import com.tokioschool.praticas.services.AuthService;
 import com.tokioschool.praticas.services.SecurityAppUserService;
+import com.tokioschool.praticas.util.CookieUtil;
 import com.tokioschool.praticas.util.JwtTokenUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -56,11 +57,15 @@ public class AuthController {
         } else {
             throw new RuntimeException("Loading the user failed.");
         }
-        String token = jwtTokenUtil.generateToken(userDetails);
-        Cookie jwtCookie = new Cookie("JWT", token);
-        jwtCookie.setHttpOnly(true);
-        jwtCookie.setMaxAge((int) JWT_TOKEN_DURATION / 1000);
+        // Add access token to cookies
+        String token = jwtTokenUtil.generateAccessToken(userDetails);
+        Cookie jwtCookie = new Cookie(CookieUtil.JWT_COOKIE, token);
         response.addCookie(jwtCookie);
+        // Add refresh token to http-only cookies
+        String refresh = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
+        Cookie refreshCookie = new Cookie(CookieUtil.REFRESH_COOKIE, refresh);
+        refreshCookie.setHttpOnly(true);
+        response.addCookie(refreshCookie);
 
         logger.info("Successfull login: id={}, username={}",
                 appUserService.findByUsername(userDetails.getUsername()).getId(),

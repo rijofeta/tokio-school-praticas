@@ -1,19 +1,17 @@
 package com.tokioschool.praticas.controllers;
 
+import com.tokioschool.praticas.services.SecurityAppUserService;
 import com.tokioschool.praticas.util.CookieUtil;
 import com.tokioschool.praticas.util.JwtTokenUtil;
-import jakarta.servlet.RequestDispatcher;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import java.util.List;
-
-import static com.tokioschool.praticas.util.JwtTokenUtil.JWT_TOKEN_DURATION;
 
 @Controller
 public class JwtRefreshController {
@@ -21,23 +19,32 @@ public class JwtRefreshController {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
+    @Autowired
+    private SecurityAppUserService securityAppUserService;
+
     @GetMapping("/refresh-jwt")
     public String refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        Cookie oldJwtCookie = CookieUtil.getCookie(CookieUtil.JWT_COOKIE, request.getCookies());
-        if (oldJwtCookie != null && jwtTokenUtil.isTokenValid(oldJwtCookie.getValue())) {
-            String username = jwtTokenUtil.getUsername(oldJwtCookie.getValue());
-            List<GrantedAuthority> auths = jwtTokenUtil.getAuthorities(oldJwtCookie.getValue());
-            String token = jwtTokenUtil.generateToken(username, auths);
+        // Check if there's a cookie containing the refresh token
+        Cookie refreshCookie = CookieUtil.getCookie(CookieUtil.REFRESH_COOKIE, request.getCookies());
+        if (refreshCookie == null) return "redirect:/login";
+
+        try {
+            String username = jwtTokenUtil.getUsername(refreshCookie.getValue());
+            UserDetails userDetails = securityAppUserService.loadUserByUsername(username);
+            String token = jwtTokenUtil.generateAccessToken(userDetails);
             // delete old JWT cookie
+            Cookie oldJwtCookie = CookieUtil.getCookie(CookieUtil.JWT_COOKIE, request.getCookies());
             oldJwtCookie.setMaxAge(0);
             oldJwtCookie.setValue(null);
             response.addCookie(oldJwtCookie);
             //
             Cookie newJwtCookie = new Cookie(CookieUtil.JWT_COOKIE, token);
             newJwtCookie.setHttpOnly(true);
-            newJwtCookie.setMaxAge((int) JWT_TOKEN_DURATION / 1000);
             response.addCookie(newJwtCookie);
+
+        } catch (ExpiredJwtException | UsernameNotFoundException exception) {
+            return "redirect:/login";
         }
-        return "redirect:" + request.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
+        return "redirect:/products";
     }
 }

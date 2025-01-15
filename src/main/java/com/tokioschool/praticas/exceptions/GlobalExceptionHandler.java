@@ -1,5 +1,7 @@
 package com.tokioschool.praticas.exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +84,19 @@ public class GlobalExceptionHandler {
                         ZonedDateTime.now(ZoneOffset.UTC).toString()
                 ),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredJwtException(ExpiredJwtException exception) {
+        logger.warn("The access token used is expired. exp: {}", exception.getClaims().getExpiration());
+        return new ResponseEntity<>(
+                new ErrorResponse(
+                        2401,
+                        "expired_access_token",
+                        ZonedDateTime.now(ZoneOffset.UTC).toString()
+                ),
+                HttpStatus.UNAUTHORIZED
         );
     }
 
